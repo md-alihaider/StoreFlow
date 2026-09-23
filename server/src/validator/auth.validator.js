@@ -3,7 +3,7 @@ import { body, validationResult } from "express-validator";
 export const registerValidator = [
   body("email")
     .exists()
-    .withMessage("Email is Required")
+    .withMessage("Email is required")
     .bail()
     .trim()
     .isEmail()
@@ -11,7 +11,7 @@ export const registerValidator = [
 
   body("name")
     .exists()
-    .withMessage("Name is Required")
+    .withMessage("Name is required")
     .bail()
     .trim()
     .isString()
@@ -48,6 +48,36 @@ export const registerValidator = [
   (req, res, next) => {
     const errors = validationResult(req);
 
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Invalid Request",
+        errors: errors.array(),
+      });
+    }
+    next();
+  },
+];
+
+export const loginValidator = [
+  body("email")
+    .exists()
+    .withMessage("Email is required")
+    .bail()
+    .trim()
+    .isEmail()
+    .withMessage("Invalid Email Address"),
+
+  body("password")
+    .exists()
+    .withMessage("Password is Required")
+    .bail()
+    .isString()
+    .withMessage("Password must be string")
+    .bail()
+    .isLength({ min: 6 })
+    .withMessage("Password must be minimum 6 character long"),
+  (req, res, next) => {
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
         message: "Invalid Request",

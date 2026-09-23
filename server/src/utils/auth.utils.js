@@ -14,7 +14,7 @@ export const createAccessToken = ({ userId }) => {
 export const createRefreshToken = ({ userId }) => {
   const refreshToken = jwt.sign(
     {
-      useId,
+      userId,
     },
     config.REFRESH_TOKEN_SECRET,
     { expiresIn: "7d" },
