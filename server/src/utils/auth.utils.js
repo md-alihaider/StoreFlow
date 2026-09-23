@@ -21,3 +21,11 @@ export const createRefreshToken = ({ userId }) => {
   );
   return refreshToken;
 };
+
+export const readRefreshToken = (refreshToken) => {
+  return jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET);
+};
+
+export const readAccessToken = (accessToken) => {
+  return jwt.verify(accessToken, config.ACCESS_TOKEN_SECRET);
+};

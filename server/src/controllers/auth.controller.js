@@ -1,6 +1,10 @@
 import userModel from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-import { createAccessToken, createRefreshToken } from "../utils/auth.utils.js";
+import {
+  createAccessToken,
+  createRefreshToken,
+  readRefreshToken,
+} from "../utils/auth.utils.js";
 import { config } from "../config/config.js";
 
 export const registerUser = async (req, res) => {
@@ -133,7 +137,72 @@ export const loginUser = async (req, res) => {
   }
 };
 
-export const refresh = async (req, res) => {};
+export const refresh = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(401).json({
+      message: "Refresh token is required",
+    });
+  }
+
+  try {
+    //decode the refreshtoken
+    const decoded = readRefreshToken(refreshToken);
+    const { userId } = decoded;
+
+    //find the user
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(401).json({
+        message: "User not found",
+      });
+    }
+
+    //if user is but token not match
+    if (refreshToken !== user.refreshToken) {
+      user.refreshToken = null;
+      await user.save();
+
+      return res.status(401).json({
+        message: "Refresh token mismatch",
+      });
+    }
+
+    //if everything is fine create new token
+    const accessToken = createAccessToken({ userId });
+    const newRefreshToken = createRefreshToken({ userId });
+
+    //save refreshtoken to db and save
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    //set refreshtoken in cookie
+    res.cookie("refreshTokne", newRefreshToken, {
+      httpOnly: true,
+      secure: config.COOKIE_SECURE,
+      sameSite: config.COOKIE_SAME_SITE,
+    });
+
+    //senc res
+    return res.status(200).json({
+      message: "Tokne rotated successfully",
+      data: {
+        user: {
+          email: user.email,
+          name: user.name,
+          id: user._id,
+        },
+        accessToken,
+      },
+    });
+  } catch (error) {
+    console.log(`Error in refresh controller: ${error}`);
+    return res.status(401).json({
+      message: "Invalid refresh token",
+    });
+  }
+};
 
 export const logoutUser = async (req, res) => {};
 
