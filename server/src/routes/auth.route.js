@@ -1,5 +1,6 @@
 import {Router} from 'express'
 import { registerUser } from '../controllers/auth.controller.js'
+import { registerValidator } from '../validator/auth.validator.js'
 
 
 const router = Router()
@@ -14,6 +15,6 @@ const router = Router()
  * @param {string} password - The password of the user
  * @param {string} confirmPassword - The confirm password of the user
  */
-router.post('/register', registerUser)
+router.post('/register', registerValidator, registerUser)
 
 export default router
