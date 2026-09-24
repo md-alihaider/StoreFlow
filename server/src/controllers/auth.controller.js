@@ -147,46 +147,53 @@ export const refresh = async (req, res) => {
   }
 
   try {
-    //decode the refreshtoken
+    // Verify and decode the refresh token
     const decoded = readRefreshToken(refreshToken);
     const { userId } = decoded;
 
-    //find the user
+    // Find the user
     const user = await userModel.findById(userId);
+
     if (!user) {
       return res.status(401).json({
-        message: "User not found",
+        message: "Invalid refresh token",
       });
     }
 
-    //if user is but token not match
+    // Check if refresh token matches the one stored in DB
     if (refreshToken !== user.refreshToken) {
       user.refreshToken = null;
       await user.save();
 
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: config.COOKIE_SECURE,
+        sameSite: config.COOKIE_SAME_SITE,
+      });
+
       return res.status(401).json({
-        message: "Refresh token mismatch",
+        message: "Invalid refresh token",
       });
     }
 
-    //if everything is fine create new token
+    // Create new tokens
     const accessToken = createAccessToken({ userId });
     const newRefreshToken = createRefreshToken({ userId });
 
-    //save refreshtoken to db and save
+    // Rotate refresh token and save it
     user.refreshToken = newRefreshToken;
     await user.save();
 
-    //set refreshtoken in cookie
-    res.cookie("refreshTokne", newRefreshToken, {
+    // Send new refresh token as cookie
+    res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       secure: config.COOKIE_SECURE,
       sameSite: config.COOKIE_SAME_SITE,
     });
 
-    //senc res
+    // Send response
     return res.status(200).json({
-      message: "Tokne rotated successfully",
+      message: "Token rotated successfully",
       data: {
         user: {
           email: user.email,
@@ -198,12 +205,82 @@ export const refresh = async (req, res) => {
     });
   } catch (error) {
     console.log(`Error in refresh controller: ${error}`);
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: config.COOKIE_SECURE,
+      sameSite: config.COOKIE_SAME_SITE,
+    });
+
     return res.status(401).json({
       message: "Invalid refresh token",
     });
   }
 };
 
-export const logoutUser = async (req, res) => {};
+export const logoutUser = async (req, res) => {
+  try {
+    //recieve refreshtoken from cookie
+    const refreshToken = req.cookies.refreshToken;
 
-export const getMe = async (req, res) => {};
+    //if refreshtoken then find user and make refreshtokne null in db and save
+    if (refreshToken) {
+      const user = await userModel.findOne({ refreshToken });
+
+      if (user) {
+        user.refreshToken = null;
+        await user.save();
+      }
+    }
+
+    //clear cookie
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: config.COOKIE_SECURE,
+      sameSite: config.COOKIE_SAME_SITE,
+    });
+
+    //send res
+    return res.status(200).json({
+      message: "User logged out successfully",
+    });
+  } catch (error) {
+    console.error("Error in logout controller:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getMe = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const user = await userModel
+      .findById(userId)
+      .select("-passwordHash -refreshToken");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "User profile fetched successfully",
+      data: {
+        user: {
+          id: user._id,
+          email: user.email,
+          name: user.name,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error in getMe controller:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};

@@ -1,12 +1,18 @@
-import {Router} from 'express'
-import { registerUser, loginUser, refresh } from "../controllers/auth.controller.js";
+import { Router } from "express";
+import {
+  registerUser,
+  loginUser,
+  refresh,
+  logoutUser,
+  getMe,
+} from "../controllers/auth.controller.js";
 import {
   registerValidator,
   loginValidator,
 } from "../validator/auth.validator.js";
+import { authenticate } from "../middlewares/auth.middlewares.js";
 
-
-const router = Router()
+const router = Router();
 
 /**
  * @method POST
@@ -18,8 +24,7 @@ const router = Router()
  * @param {string} password - The password of the user
  * @param {string} confirmPassword - The confirm password of the user
  */
-router.post('/register', registerValidator, registerUser)
-
+router.post("/register", registerValidator, registerUser);
 
 /**
  * @method POST
@@ -29,8 +34,7 @@ router.post('/register', registerValidator, registerUser)
  * @param {string} name - The name of the user
  * @param {string} email - The email of the user
  */
-router.post("/login", loginValidator, loginUser)
-
+router.post("/login", loginValidator, loginUser);
 
 /**
  * @method POST
@@ -38,6 +42,22 @@ router.post("/login", loginValidator, loginUser)
  * @description Issue a new access token
  * @access Public
  */
-router.post("/refresh-token", refresh)
+router.post("/refresh-token", refresh);
 
-export default router
+/**
+ * @method POST
+ * @endpoint /api/auth/logout
+ * @description Invalidate the refresh token
+ * @access Authenticated
+ */
+router.post("/logout", authenticate, logoutUser);
+
+/**
+ * @method GET
+ * @endpoint /api/auth/me
+ * @description Return the logged-in user's profile
+ * @access Authenticated
+ */
+router.get("/me", authenticate, getMe);
+
+export default router;
