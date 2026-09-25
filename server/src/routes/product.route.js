@@ -1,7 +1,14 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/auth.middlewares.js";
-import { createProduct } from "../controllers/product.controller.js";
-import { createProductValidator } from "../validator/product.validator.js";
+import {
+  createProduct,
+  getProduct,
+  getProducts,
+} from "../controllers/product.controller.js";
+import {
+  createProductValidator,
+  productIdValidator,
+} from "../validator/product.validator.js";
 import multer from "multer";
 
 const upload = multer({
@@ -43,5 +50,21 @@ router.post(
   createProductValidator,
   createProduct,
 );
+
+/**
+ * @method GET
+ * @enpoint /api/products
+ * @description Get all products
+ * @access Public
+ */
+router.get("/", getProducts);
+
+/**
+ * @method GET
+ * @endpoint /api/products/:id
+ * @description Get a single product by ID
+ * @access Public
+ */
+router.get("/:id", productIdValidator, getProduct);
 
 export default router;
