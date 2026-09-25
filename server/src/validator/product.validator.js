@@ -1,4 +1,4 @@
-import { body, validationResult,param } from "express-validator";
+import { body, validationResult, param } from "express-validator";
 
 export const createProductValidator = [
   body("title")
@@ -77,6 +77,50 @@ export const productIdValidator = [
     .bail()
     .isMongoId()
     .withMessage("Invalid product ID"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Invalid Request",
+        errors: errors.array(),
+      });
+    }
+    next();
+  },
+];
+
+export const updateProductValidator = [
+  body("title")
+    .optional()
+    .isString()
+    .withMessage("Title must be a string")
+    .trim()
+    .isLength({ min: 3, max: 50 })
+    .withMessage("Title must be between 3 and 50 characters"),
+
+  body("description")
+    .optional()
+    .isString()
+    .withMessage("Description must be a string")
+    .trim()
+    .isLength({ min: 20, max: 500 })
+    .withMessage("Description must be between 20 and 500 characters"),
+
+  body("price").optional().isObject().withMessage("Price must be an object"),
+
+  body("price.amount")
+    .optional()
+    .isNumeric()
+    .withMessage("Price amount must be a number")
+    .custom((value) => value >= 0)
+    .withMessage("Price amount cannot be negative"),
+
+  body("price.currency")
+    .optional()
+    .isIn(["INR", "USD"])
+    .withMessage("Currency must be INR or USD"),
+
+  body("sizes").optional().isArray().withMessage("Sizes must be an array"),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

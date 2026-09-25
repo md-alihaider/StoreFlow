@@ -67,4 +67,28 @@ router.get("/", getProducts);
  */
 router.get("/:id", productIdValidator, getProduct);
 
+/**
+ * @method PUT
+ * @endpoint /api/products/:id
+ * @description Update a product
+ * @access Authenticated
+ */
+router.put("/:id", authenticate, upload.array("images"), (req, res, next) => {
+  try {
+    if (req.body.price) {
+      req.body.price = JSON.parse(req.body.price);
+    }
+
+    if (req.body.sizes) {
+      req.body.sizes = JSON.parse(req.body.sizes);
+    }
+
+    next();
+  } catch (error) {
+    return res.status(400).json({
+      message: "Invalid JSON format for price or sizes",
+    });
+  }
+},productIdValidator,updateProduct);
+
 export default router;
