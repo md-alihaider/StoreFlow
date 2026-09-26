@@ -159,3 +159,30 @@ export const updateProduct = async (req, res) => {
     });
   }
 };
+
+export const deleteProduct = async (req, res) => {
+  try {
+    //get id from req.params
+    const { id } = req.params;
+
+    //find product by id
+    const product = await productModel.findById(id);
+    //if not
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    await productModel.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      message: "Product deleted successfully",
+    });
+  } catch (error) {
+    console.log(`Error in deleteProduct controller: ${error}`);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};

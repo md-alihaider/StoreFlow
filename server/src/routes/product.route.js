@@ -5,6 +5,7 @@ import {
   getProduct,
   getProducts,
   updateProduct,
+  deleteProduct,
 } from "../controllers/product.controller.js";
 import {
   createProductValidator,
@@ -101,5 +102,14 @@ router.put(
   updateProductValidator,
   updateProduct,
 );
+
+
+/**
+ * @method DELETE
+ * @endpoint /api/products/:id 
+ * @description Delete a product
+ * @access Authenticated
+ */
+router.delete("/:id",authenticate,productIdValidator,deleteProduct)
 
 export default router;
