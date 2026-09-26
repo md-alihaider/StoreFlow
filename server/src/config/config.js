@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+
 dotenv.config();
 
 export const config = {
@@ -9,4 +10,6 @@ export const config = {
 
   COOKIE_SECURE: process.env.COOKIE_SECURE === "true",
   COOKIE_SAME_SITE: process.env.COOKIE_SAME_SITE || "lax",
+
+  IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
 };
