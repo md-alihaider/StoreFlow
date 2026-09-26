@@ -78,6 +78,7 @@ router.get("/:id", productIdValidator, getProduct);
 router.put(
   "/:id",
   authenticate,
+  productIdValidator,
   upload.array("images"),
   (req, res, next) => {
     try {
@@ -96,7 +97,7 @@ router.put(
       });
     }
   },
-  productIdValidator,
+
   updateProductValidator,
   updateProduct,
 );
