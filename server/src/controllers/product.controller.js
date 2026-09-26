@@ -90,3 +90,72 @@ export const getProduct = async (req, res) => {
     });
   }
 };
+
+export const updateProduct = async (req, res) => {
+  try {
+    //get id
+    const { id } = req.params;
+
+    //find product by id
+    const product = await productModel.findById(id);
+
+    //if not
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    const { title, description, price, sizes } = req.body;
+
+    //update the fields that are provided
+    if (title !== undefined) {
+      product.title = title;
+    }
+    if (description !== undefined) {
+      product.description = description;
+    }
+    if (price !== undefined) {
+      product.price = {
+        amount: price.amount,
+        currency: price.currency,
+      };
+    }
+    if (sizes !== undefined) {
+      product.sizes = sizes;
+    }
+
+    //update image if new image were uploaded
+    if (req.files && req.files.length > 0) {
+      if (req.files.length > 5) {
+        return res.status(400).json({
+          message: "Maximum of 5 images allowed",
+        });
+      }
+
+      const filesUrls = [];
+      for (const file of req.files) {
+        const response = await uploadFiles({
+          buffer: file.buffer,
+          fileName: file.originalname,
+        });
+        filesUrls.push(response.url);
+      }
+      product.images = filesUrls;
+    }
+    //save updated product
+    await product.save();
+
+    return res.status(200).json({
+      message: "Product updated successfully",
+      data: {
+        product,
+      },
+    });
+  } catch (error) {
+    console.log(`Error in updateProduct controller: ${error}`);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};

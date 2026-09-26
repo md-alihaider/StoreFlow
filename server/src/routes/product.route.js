@@ -4,10 +4,12 @@ import {
   createProduct,
   getProduct,
   getProducts,
+  updateProduct,
 } from "../controllers/product.controller.js";
 import {
   createProductValidator,
   productIdValidator,
+  updateProductValidator,
 } from "../validator/product.validator.js";
 import multer from "multer";
 
@@ -73,22 +75,30 @@ router.get("/:id", productIdValidator, getProduct);
  * @description Update a product
  * @access Authenticated
  */
-router.put("/:id", authenticate, upload.array("images"), (req, res, next) => {
-  try {
-    if (req.body.price) {
-      req.body.price = JSON.parse(req.body.price);
-    }
+router.put(
+  "/:id",
+  authenticate,
+  upload.array("images"),
+  (req, res, next) => {
+    try {
+      if (req.body.price) {
+        req.body.price = JSON.parse(req.body.price);
+      }
 
-    if (req.body.sizes) {
-      req.body.sizes = JSON.parse(req.body.sizes);
-    }
+      if (req.body.sizes) {
+        req.body.sizes = JSON.parse(req.body.sizes);
+      }
 
-    next();
-  } catch (error) {
-    return res.status(400).json({
-      message: "Invalid JSON format for price or sizes",
-    });
-  }
-},productIdValidator,updateProduct);
+      next();
+    } catch (error) {
+      return res.status(400).json({
+        message: "Invalid JSON format for price or sizes",
+      });
+    }
+  },
+  productIdValidator,
+  updateProductValidator,
+  updateProduct,
+);
 
 export default router;
