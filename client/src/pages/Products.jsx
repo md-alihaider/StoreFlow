@@ -98,7 +98,7 @@ const Products = () => {
             </div>
           ) : (
             /* No results */
-            <div className="flex min-h-[300px] items-center justify-center">
+            <div className="flex min-h-75 items-center justify-center">
               <div className="text-center">
                 <p className="text-lg font-medium text-white">
                   No products found
