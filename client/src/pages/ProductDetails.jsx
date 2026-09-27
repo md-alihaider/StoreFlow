@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { useEffect, useState, useContext } from "react";
+import { Link, useNavigate, useParams } from "react-router";
 import api from "../services/api";
+import AuthContext from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 const ProductDetails = () => {
   const { id } = useParams();
-
+  const { user, accessToken } = useContext(AuthContext);
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getProduct = async () => {
@@ -57,6 +60,38 @@ const ProductDetails = () => {
       </main>
     );
   }
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this product?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await api.delete(`/products/${product._id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      toast.success("Product deleted successfully");
+
+      navigate("/products");
+    } catch (error) {
+      console.error("Error deleting product:", error);
+
+      if (error.response?.status === 401) {
+        toast.error("You are not authorized to delete this product");
+      } else {
+        toast.error(
+          error.response?.data?.message || "Failed to delete product",
+        );
+      }
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] px-6 py-12 text-white">
@@ -119,6 +154,24 @@ const ProductDetails = () => {
             <p className="mt-8 text-xl font-medium">
               {product.price.amount} {product.price.currency}
             </p>
+            {user && (
+              <div className="mt-6 flex gap-3">
+                <Link
+                  to={`/products/${product._id}/edit`}
+                  className="inline-flex w-fit rounded-lg bg-white px-5 py-3 text-sm font-medium text-black transition hover:bg-neutral-200"
+                >
+                  Edit Product
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="inline-flex w-fit rounded-lg border border-red-500/30 px-5 py-3 text-sm font-medium text-red-400 transition hover:bg-red-500/10"
+                >
+                  Delete Product
+                </button>
+              </div>
+            )}
 
             {/* Sizes */}
             <div className="mt-8">

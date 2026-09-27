@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Search } from "lucide-react";
-
+import AuthContext from "../context/AuthContext";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
 import Footer from "../components/Footer";
+import { Link } from "react-router";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const getProducts = async () => {
@@ -54,20 +56,31 @@ const Products = () => {
             </div>
 
             {/* Search */}
-            <div className="relative w-full md:max-w-sm">
-              <Search
-                size={18}
-                strokeWidth={1.8}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500"
-              />
+            <div className="flex w-full flex-col gap-3 sm:flex-row md:w-auto">
+              {user && (
+                <Link
+                  to="/products/create"
+                  className="rounded-lg bg-white px-5 py-3 text-center text-sm font-medium text-black transition hover:bg-neutral-200"
+                >
+                  Add Product
+                </Link>
+              )}
 
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search products..."
-                className="w-full rounded-lg border border-neutral-800 bg-neutral-900/70 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-neutral-600"
-              />
+              <div className="relative w-full sm:w-72">
+                <Search
+                  size={18}
+                  strokeWidth={1.8}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500"
+                />
+
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full rounded-lg border border-neutral-800 bg-neutral-900/70 py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-neutral-600"
+                />
+              </div>
             </div>
           </div>
 
