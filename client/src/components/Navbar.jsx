@@ -5,12 +5,33 @@ import { Link, NavLink } from "react-router";
 import { useContext, useState } from "react";
 
 import AuthContext from "../context/AuthContext";
+import api from "../services/api";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const { user } = useContext(AuthContext);
+  const { user, setUser, accessToken, setAccessToken } =
+    useContext(AuthContext);
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout", null, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      setUser(null);
+      setAccessToken(null);
+
+      setIsProfileOpen(false);
+      setIsMenuOpen(false);
+      toast.success("Logged out successfully");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   const navLinkClass = ({ isActive }) =>
     `relative py-2 text-sm transition ${
@@ -102,6 +123,7 @@ const Navbar = () => {
                   {/* Logout */}
                   <button
                     type="button"
+                    onClick={handleLogout}
                     className="w-full rounded-lg px-3 py-2 text-left text-sm text-neutral-400 transition hover:bg-neutral-900 hover:text-white"
                   >
                     Logout
@@ -110,12 +132,21 @@ const Navbar = () => {
               )}
             </div>
           ) : (
-            <Link
-              to="/login"
-              className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
-            >
-              Login
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/login"
+                className="text-sm text-neutral-400 transition hover:text-white"
+              >
+                Login
+              </Link>
+
+              <Link
+                to="/register"
+                className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-black transition hover:bg-neutral-200"
+              >
+                Register
+              </Link>
+            </div>
           )}
         </div>
 
@@ -195,6 +226,7 @@ const Navbar = () => {
 
                 <button
                   type="button"
+                  onClick={handleLogout}
                   className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm text-neutral-400 transition hover:bg-neutral-800 hover:text-white"
                 >
                   Logout
