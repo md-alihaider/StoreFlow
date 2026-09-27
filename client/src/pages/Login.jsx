@@ -1,6 +1,31 @@
-import { Link } from "react-router";
+import { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router";
+import toast from "react-hot-toast";
+import api from "../services/api";
+import AuthContext from "../context/AuthContext";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { setAccessToken, setUser } = useContext(AuthContext);
+  const navigate = useNavigate()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post("/auth/login", {
+        email,
+        password,
+      });
+      setUser(response.data.data.user);
+      setAccessToken(response.data.data.accessToken);
+      toast.success("Login successful");
+      navigate("/")
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Login failed");
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#0a0a0a] px-6 py-16 text-white">
       <div className="mx-auto flex min-h-[70vh] max-w-md items-center justify-center">
@@ -21,7 +46,7 @@ const Login = () => {
           </div>
 
           {/* Form */}
-          <form className="mt-10 space-y-5">
+          <form onSubmit={handleSubmit} className="mt-10 space-y-5">
             {/* Email */}
             <div>
               <label
@@ -34,6 +59,8 @@ const Login = () => {
               <input
                 id="email"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 className="w-full rounded-lg border border-neutral-800 bg-neutral-900/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-neutral-600"
               />
@@ -51,6 +78,8 @@ const Login = () => {
               <input
                 id="password"
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 className="w-full rounded-lg border border-neutral-800 bg-neutral-900/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-neutral-600 focus:border-neutral-600"
               />

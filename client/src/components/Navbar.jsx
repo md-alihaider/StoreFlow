@@ -1,9 +1,16 @@
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, ChevronDown } from "lucide-react";
+
 import { Link, NavLink } from "react-router";
-import { useState } from "react";
+
+import { useContext, useState } from "react";
+
+import AuthContext from "../context/AuthContext";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  const { user } = useContext(AuthContext);
 
   const navLinkClass = ({ isActive }) =>
     `relative py-2 text-sm transition ${
@@ -42,13 +49,74 @@ const Navbar = () => {
             <Search size={20} strokeWidth={1.8} />
           </button>
 
-          {/* Login */}
-          <Link
-            to="/login"
-            className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
-          >
-            Login
-          </Link>
+          {/* User / Login */}
+          {user ? (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsProfileOpen((prev) => !prev)}
+                className="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-neutral-900"
+              >
+                {/* Avatar */}
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-medium text-black">
+                  {user.name?.charAt(0).toUpperCase()}
+                </span>
+
+                {/* Name */}
+                <span className="max-w-28 truncate text-sm text-neutral-300">
+                  {user.name}
+                </span>
+
+                {/* Arrow */}
+                <ChevronDown
+                  size={16}
+                  className={`text-neutral-500 transition-transform ${
+                    isProfileOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {/* Profile Dropdown */}
+              {isProfileOpen && (
+                <div className="absolute right-0 top-12 w-56 rounded-xl border border-neutral-800 bg-[#111111] p-2 shadow-xl">
+                  {/* User Information */}
+                  <div className="border-b border-neutral-800 px-3 py-3">
+                    <p className="text-sm font-medium text-white">
+                      {user.name}
+                    </p>
+
+                    <p className="mt-1 truncate text-xs text-neutral-500">
+                      {user.email}
+                    </p>
+                  </div>
+
+                  {/* Profile */}
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsProfileOpen(false)}
+                    className="mt-1 block rounded-lg px-3 py-2 text-sm text-neutral-400 transition hover:bg-neutral-900 hover:text-white"
+                  >
+                    Profile
+                  </Link>
+
+                  {/* Logout */}
+                  <button
+                    type="button"
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm text-neutral-400 transition hover:bg-neutral-900 hover:text-white"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
+            >
+              Login
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -97,14 +165,50 @@ const Navbar = () => {
               Products
             </NavLink>
 
-            {/* Login */}
-            <Link
-              to="/login"
-              onClick={() => setIsMenuOpen(false)}
-              className="mt-4 w-fit rounded-lg border border-neutral-700 px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
-            >
-              Login
-            </Link>
+            {/* Mobile Auth */}
+            {user ? (
+              <div className="mt-5 rounded-xl border border-neutral-800 bg-neutral-900/50 p-3">
+                <div className="flex items-center gap-3">
+                  {/* Avatar */}
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-sm font-medium text-black">
+                    {user.name?.charAt(0).toUpperCase()}
+                  </span>
+
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-white">
+                      {user.name}
+                    </p>
+
+                    <p className="truncate text-xs text-neutral-500">
+                      {user.email}
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  to="/profile"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="mt-4 block rounded-lg px-3 py-2 text-sm text-neutral-400 transition hover:bg-neutral-800 hover:text-white"
+                >
+                  Profile
+                </Link>
+
+                <button
+                  type="button"
+                  className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm text-neutral-400 transition hover:bg-neutral-800 hover:text-white"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="mt-4 w-fit rounded-lg border border-neutral-700 px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
       )}
