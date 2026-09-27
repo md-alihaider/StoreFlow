@@ -318,7 +318,7 @@ const EditProduct = () => {
                 {product.images?.map((image, index) => (
                   <div
                     key={index}
-                    className="aspect-[4/5] overflow-hidden rounded-lg bg-neutral-900"
+                    className="aspect-4/5 overflow-hidden rounded-lg bg-neutral-900"
                   >
                     <img
                       src={image}
