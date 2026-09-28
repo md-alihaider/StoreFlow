@@ -9,7 +9,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "YOUR_RENDER_FRONTEND_URL"],
+    origin: ["http://localhost:5173", "https://storeflow-client.onrender.com"],
     credentials: true,
   }),
 );
