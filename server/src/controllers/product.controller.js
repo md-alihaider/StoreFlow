@@ -10,17 +10,17 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    const filesUrls = [];
+    // Upload all images in parallel
+    const filesUrls = await Promise.all(
+      req.files.map(async (file) => {
+        const response = await uploadFiles({
+          buffer: file.buffer,
+          fileName: file.originalname,
+        });
 
-    // Upload images
-    for (const file of req.files) {
-      const response = await uploadFiles({
-        buffer: file.buffer,
-        fileName: file.originalname,
-      });
-
-      filesUrls.push(response.url);
-    }
+        return response.url;
+      }),
+    );
 
     const { title, description, price, sizes } = req.body;
 
@@ -50,7 +50,6 @@ export const createProduct = async (req, res) => {
     });
   }
 };
-
 export const getProducts = async (req, res) => {
   try {
     const products = await productModel.find();
