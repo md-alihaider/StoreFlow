@@ -2,6 +2,8 @@
 
 A full-stack e-commerce application built with the MERN stack.
 
+🌐 **[Live Demo](https://storeflow-client.onrender.com)**
+
 StoreFlow provides a secure authentication system using JWT access and refresh tokens, along with a complete Product CRUD API and a React frontend for managing and browsing products.
 
 ## 🚀 Features
@@ -333,6 +335,6 @@ StoreFlow was built as part of a backend and full-stack learning journey to unde
 
 Full Stack Developer | MERN Stack
 
-GitHub: `https://github.com/md-alihaider`
+**GitHub:** https://github.com/md-alihaider
 
-Portfolio: `https://alihaider-dev.vercel.app`
+**Portfolio:** https://mdalihaider.vercel.app/
